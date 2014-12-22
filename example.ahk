@@ -37,8 +37,8 @@ out .= "PixelGetColor(1,1) result: " snap.PixelGetColor(1,1) "`n"
 ; Get a pixel relative to the screen. Will succeed as is not inside the Snapshot area.
 out .= "PixelGetColor(" SNAPSHOT_X ", " SNAPSHOT_Y ") result: " snap.PixelGetColor(SNAPSHOT_X,SNAPSHOT_Y) "`n"
 
-; Get a pixel relative to the Snapshot. Note that coordinate 1,1 gives the same value as the Screen coordinate
-out .= "SnapshotGetColor(1,1) result: " snap.SnapshotGetColor(1,1) "`n"
+; Get a pixel relative to the Snapshot. Note that coordinate 0,0 gives the same value as the Screen coordinate
+out .= "SnapshotGetColor(0,0) result: " snap.SnapshotGetColor(0,0) "`n"
 
 col := snap.SnapshotGetColor(1,1)
 out .= "ToRGB(" col ") = "
