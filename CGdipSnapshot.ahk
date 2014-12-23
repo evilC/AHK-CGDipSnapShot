@@ -30,6 +30,11 @@ Class CGDipSnapShot {
 		return
 	}
 
+	; Experimental save snapshot
+	SaveSnapShot(filename){
+		return Gdip_SaveBitmapToFile(this.pBitmap, filename, 100)
+	}
+
 	; Gets colour of a pixel relative to the screen (As long as it is inside the snapshot)
 	; Returns -1 if asked for a pixel outside the snapshot
 	PixelGetColor(xpos,ypos){
