@@ -30,7 +30,8 @@ Class CGDipSnapShot {
 		return
 	}
 
-	; Save snapshot
+	; Save snapshot to file
+	; Supported extensions are: .BMP,.DIB,.RLE,.JPG,.JPEG,.JPE,.JFIF,.GIF,.TIF,.TIFF,.PNG
 	SaveSnapshot(filename, quality := 100){
 		return Gdip_SaveBitmapToFile(this.pBitmap, filename, quality)
 	}
