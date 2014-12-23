@@ -31,7 +31,7 @@ Class CGDipSnapShot {
 	}
 
 	; Experimental save snapshot
-	SaveSnapShot(filename){
+	SaveSnapshot(filename){
 		return Gdip_SaveBitmapToFile(this.pBitmap, filename, 100)
 	}
 
