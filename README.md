@@ -33,7 +33,7 @@ If you know what you are doing, or paranoid, or both, you can just obtain the fi
 ####Usage
 Help on usage should be obtainable from the following sources (Best to Worst):
 
-* Project Wiki (If one exists)
+* Project [Wiki](https://github.com/evilC/AHK-CGDipSnapShot/wiki)
 * Example scripts.  
 These usually illustrate basic set-up and usage.
 * Library Source.  
