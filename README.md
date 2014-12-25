@@ -3,6 +3,14 @@ AHK-CGDipSnapShot
 
 An AHK library for working with snapshots of a portion of the screen (compare, easy conversion etc)
 
+###What does it do?
+It adds a layer on  top of the GDI+ ("Gdip") library that introduces the concept of *Snapshots*.  
+A Snapshot is a screen grab of a box from the screen, which can then be examined using a command syntactically similar to AHK's `PixelGetColor` command.
+The advantage of this technique is that you can perform multiple checks on an area of the screen, *without the worry of the screen changing between one check and another*.  
+You can also take multiple Snapshots at any given moment(s), easily save Shapshots to disk, and also a mechanism is provided to easiliy display Snapshots on the screen.
+
+Example script included.
+
 ###Using this library in your projects
 ####Setup
 #####Easy Method
