@@ -18,8 +18,10 @@ Example script included.
 ####Setup
 #####Easy Method
 1. Clone this project using GitHub for Windows.  
-If viewing this page on Github, click **Clone in Desktop** on the right edge of the page.
-1. Run `Setup.exe`.  
+If viewing this page on Github, click **Clone in Desktop** on the right edge of the page.  
+This will clone this Project ("Repository") onto your computer.  
+If there are updates to this Library, you can then Synch with GitHub to get the latest version. 
+1. Run `Setup.exe` from the repoistory you just downloaded.  
 This will check you are all set up to use the library and configure AutoHotkey so you can easily include the library in any script in any folder on your computer.
 2. Check the *DEVELOPER NOTES* section to see if there are any special instructions, then click *Install*.
 3. You are now set up and can use this library by putting the following line at the start of your script:  
