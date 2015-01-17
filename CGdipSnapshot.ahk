@@ -16,6 +16,10 @@ Class CGDipSnapShot {
 
 	; Take a new Snapshot
 	TakeSnapshot(){
+		if (this.pBitmap){
+			; delete old bitmap
+			Gdip_DisposeImage(this.pBitmap)
+		}
 		this.pBitmap := GDIP_BitmapFromScreen(this.Coords.x "|" this.Coords.y "|" this.Coords.w "|" this.Coords.h)
 		return
 	}
@@ -25,6 +29,10 @@ Class CGDipSnapShot {
 	; Gui, Add, Text, 0xE x5 y5 w200 h200 hwndSnapshotPreview
 	; Then ShowSnapshot(SnapshotPreview) to show the snapshot in that GUI item
 	ShowSnapshot(hwnd){
+		if (this.hBitmap){
+			; Delete old hwnd
+			DeleteObject(this.hBitmap)
+		}
 		this.hBitmap := Gdip_CreateHBITMAPFromBitmap(this.pBitmap)
 		SendMessage, 0x172, 0, % this.hBitmap, , % "ahk_id " hwnd
 		return
@@ -103,6 +111,7 @@ Class CGDipSnapShot {
 	; Destructor
 	__Delete(){
 		Gdip_DisposeImage(this.pBitmap)
+		DeleteObject(this.hBitmap)
 		Gdip_ShutDown(this.pToken)
 	}
 }
