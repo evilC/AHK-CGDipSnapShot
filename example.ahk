@@ -60,7 +60,11 @@ msgbox % out
 ; Comparing
 ;res := snap.PixelSnap[0,0].Diff({r:255, b:255, g: 0})
 ;res := snap.PixelSnap[0,0].Compare({r:255, b:255, g: 0},0)
+;res := snap1.Compare(snap2, 0)
 ;msgbox % snap.PixelSnap[0,0].rgb ": " res
+
+;snap2 := new CGdipSnapshot(SNAPSHOT_X,SNAPSHOT_Y,SNAPSHOT_WIDTH,SNAPSHOT_HEIGHT)
+;msgbox % snap.Compare(snap2,0)
 
 return
 

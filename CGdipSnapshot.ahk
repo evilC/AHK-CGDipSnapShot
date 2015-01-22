@@ -9,55 +9,11 @@ Documentation can largely be gleaned from the comments.
 Consider anything prefixed with _ as "internal" and not to be messed with unless you know what you are doing.
 
 ToDo:
-* Compare to compare to this (only accept one other color as arg)
 
 */
 #include <gdip_all>
 
 Class CGDipSnapShot {
-	/*
-	Color Objects.
-	Returned values of most color querying methods will return a Color Object.
-	Color Objects have the following properties:
-	rgb: Color value in hex, or -1 if there was an error.
-	eg 0xFF0000
-	r: The Red component of the color, in decimal (or -1 if there was an error)
-	eg: 255
-	g: The Green component...
-	b: The Blue component...
-	
-	The PixelScreen[] and PixelSnap[] arrays (See below) are arrays of Color objects.
-	
-	Color Objects also have Compare() and Diff() methods, eg:
-	snap.PixelScreen[0,0].Compare(snap.PixelScreen[1,1])
-	
-	"Public" Properties - Get and Set These ========================
-	
-	Undeclared but available to class users (via __Get and __Set meta-functions)
-	* Coords (object)
-	The Coordinates (x,y,w,h) of the snapshot.
-	eg xpos := snap.Coords.x
-	Setting will move the snapshot, and reset it (delete the image from memory)!
-	eg snap.Coords.x := 100
-	
-	
-	* PixelScreen (x,y Array of Color Objects)
-	Use to read colors from the snapshot, but using Screen coordinates.
-	eg
-	col := snap.PixelScreen[100,200]
-	msgbox % "RGB value is: " col.rgb
-	or
-	msgbox % "RGB value is: " snap.PixelScreen[100,200].rgb
-	
-	When reading from PixelScreen, results will be cached, so subsequent reads of the same pixel will not make a DLL call.
-	
-	
-	* PixelSnap
-	PixelSnap operates in the same way as PixelScreen, but using Snapshot coordinates.
-	eg
-	msgbox % "RGB value is: " snap.PixelScreen[0,0].rgb
-	*/
-	
 	; "private" Properties - Do not attempt to Set or Get! ===============
 	; Coords of snapshot area relative to screen
 	; Access via this.Coords instead!
@@ -130,25 +86,29 @@ Class CGDipSnapShot {
 		}
 	}
 	
+	; Compares one snapshot with another, with optional tolerance
+	Compare(snap, tol := 20){
+		if (!this._SnapshotTaken){
+			this.TakeSnapshot()
+		}
+		if (this._Coords.w != snap._Coords.w || this._Coords.h != snap._Coords.h){
+			return 0
+		}
+		Loop % this._Coords.w {
+			x := A_Index
+			Loop % this._Coords.h {
+				y := A_Index
+				if (!this.PixelSnap[x,y].Compare(snap.PixelSnap[x,y],tol)){
+					return 0
+				}
+			}
+		}
+		return 1
+	}
+	
 	; Return the Coords object, for completeness
 	GetCoords(){
 		return this._Coords
-	}
-	
-	; Compares two r/g/b integer objects, with a tolerance
-	; returns true or false
-	; Note! NOTHING to do with any pixels in the snapshot - purely compares two hex values.
-	Compare(c1, c2, tol := 20) {
-		return (this.Diff(c1,c2) <= tol)
-	}
-
-	; Returns the Difference between two colors
-	Diff(c1,c2){
-		diff := Abs( c1.r - c2.r ) "," Abs( c1.g - c2.g ) "," Abs( c1.b - c2.b )
-		sort diff,N D,
-
-		StringSplit, diff, diff, `,
-		return diff%diff0%
 	}
 	
 	; Converts Screen coords to Snapshot coords
@@ -327,7 +287,7 @@ Class CGDipSnapShot {
 		
 		; Compares this pixel to a provided color, with a tolerance
 		Compare(c2, tol := 20){
-			return this._parent.Compare(this, c2, tol)
+			return PixelCompare(this, c2, tol)
 		}
 		
 		; Returns the Difference between two colors
@@ -336,4 +296,20 @@ Class CGDipSnapShot {
 		}
 	}
 
+}
+
+; Compares two r/g/b integer objects, with a tolerance
+; returns true or false
+; Note! NOTHING to do with any pixels in the snapshot - purely compares two hex values.
+PixelCompare(c1, c2, tol := 20) {
+	return (PixelDiff(c1,c2) <= tol)
+}
+
+; Returns the Difference between two colors
+PixelDiff(c1,c2){
+	diff := Abs( c1.r - c2.r ) "," Abs( c1.g - c2.g ) "," Abs( c1.b - c2.b )
+	sort diff,N D,
+
+	StringSplit, diff, diff, `,
+	return diff%diff0%
 }
