@@ -31,7 +31,7 @@ This will check you are all set up to use the library and configure AutoHotkey s
 
 #####Manual Method
 If you know what you are doing, or are paranoid, or both, you can just obtain the files and `#include` as normal. The Setup app simply makes it easy for people who don't really know what they are doing to get up and running with this library. It performs the following main functions:  
-Check for out-of-date AHK version from Autohotkey.com, instead of an up-to-date version from http://ahkscript.org)  
+Check for out-of-date AHK version from Autohotkey.com, instead of an up-to-date version from http://ahkscript.org   
 Create an ahk file in your AHK lib folder (Usually C:\Program Files\Autohotkey\Lib) that includes the file(s) from this repository in the Github folder - thus allowing you to keep this lib in the Github repo folder, but include it from anywhere via `#include<>` syntax.
 
 ####Usage
