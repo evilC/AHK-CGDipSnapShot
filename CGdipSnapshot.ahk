@@ -164,13 +164,6 @@ Class CGDipSnapShot {
 		return new this._CColor(ret, this)
 	}
 	
-	; ===== Helper functions, not used internally ============================================================================
-	
-	; Converts hex ("0xFFFFFF" as a string) to an object of r/g/b integers
-	ToRGB(color) {
-	    return { "r": (color >> 16) & 0xFF, "g": (color >> 8) & 0xFF, "b": color & 0xFF }
-	}
-
 	; ===== Mainly for internal use. ==========================================================================================
 
 	_ResetSnapshot(){
@@ -312,4 +305,9 @@ PixelDiff(c1,c2){
 
 	StringSplit, diff, diff, `,
 	return diff%diff0%
+}
+
+; Converts hex ("0xFFFFFF" as a string) to an object of r/g/b integers
+HexToRGB(color) {
+	return { "r": (color >> 16) & 0xFF, "g": (color >> 8) & 0xFF, "b": color & 0xFF }
 }
