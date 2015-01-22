@@ -28,7 +28,7 @@ This will check you are all set up to use the library and configure AutoHotkey s
 `#include <CGDipSnapshot>`
 
 #####Manual Method
-If you know what you are doing, or paranoid, or both, you can just obtain the files and `#include` as normal. The Setup app simply makes it easy for people who don't really know what they are doing to get up and running with this library (For example, check for out-of-date AHK version from Autohotkey.com, instead of an up-to-date version from http://ahkscript.org)
+If you know what you are doing, or are paranoid, or both, you can just obtain the files and `#include` as normal. The Setup app simply makes it easy for people who don't really know what they are doing to get up and running with this library (For example, check for out-of-date AHK version from Autohotkey.com, instead of an up-to-date version from http://ahkscript.org)
 
 ####Usage
 Help on usage should be obtainable from the following sources (Best to Worst):
