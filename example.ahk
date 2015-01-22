@@ -32,18 +32,16 @@ out := "Snapshot top left: " SNAPSHOT_X "," SNAPSHOT_Y "`n"
 out .= "Width: " SNAPSHOT_WIDTH ", Height: " SNAPSHOT_HEIGHT "`n"
 
 ; Get a pixel relative to the screen. Will fail as 1,1 is not inside the Snapshot area.
-out .= "PixelGetColor(1,1) result: " snap.PixelGetColor(1,1) "`n"
+out .= "PixelGetColor(1,1) result: " snap.PixelGetColor(1,1).rgb "`n"
 
-; Get a pixel relative to the screen. Will succeed as is not inside the Snapshot area.
-out .= "PixelGetColor(" SNAPSHOT_X ", " SNAPSHOT_Y ") result: " snap.PixelGetColor(SNAPSHOT_X,SNAPSHOT_Y) "`n"
+; Get a pixel relative to the screen. Will succeed as is inside the Snapshot area.
+out .= "PixelGetColor(" SNAPSHOT_X ", " SNAPSHOT_Y ") result: " snap.PixelGetColor(SNAPSHOT_X,SNAPSHOT_Y).rgb "`n"
 
 ; Get a pixel relative to the Snapshot. Note that coordinate 0,0 gives the same value as the Screen coordinate
-out .= "SnapshotGetColor(0,0) result: " snap.SnapshotGetColor(0,0) "`n"
+out .= "SnapshotGetColor(0,0) result: " snap.SnapshotGetColor(0,0).rgb "`n"
 
 col := snap.SnapshotGetColor(1,1)
-out .= "ToRGB(" col ") = "
-col := snap.ToRGB(col)
-out .= "{r: " col.r ", g: " col.g ", b: " col.b "}"
+out .= "ToRGB(" col.rgb ") = {r: " col.r ", g: " col.g ", b: " col.b "}"
 
 msgbox % out
 

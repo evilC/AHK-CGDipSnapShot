@@ -1,8 +1,16 @@
-; CGDipSnapShot.ahk
-; By evilc@evilc.com
+/*
+CGDipSnapShot.ahk
+By evilc@evilc.com
 
-; Use Gdip_All.ahk from this page: http://www.autohotkey.com/board/topic/29449-gdi-standard-library-145-by-tic/
-; Place it in C:\Program Files\Autohotkey\Lib (Create Lib folder if it does not exist)
+Use Gdip_All.ahk from this page: http://www.autohotkey.com/board/topic/29449-gdi-standard-library-145-by-tic/
+Place it in C:\Program Files\Autohotkey\Lib (Create Lib folder if it does not exist)
+
+ToDo:
+* Cache pixel colours in array
+* r/g/b values via dynamic properties
+* Set Pos / Size command (clear cache too)
+* Compare to compare to this (only accept one other colour as arg)
+*/
 #include <gdip_all>
 
 Class CGDipSnapShot {
@@ -47,13 +55,12 @@ Class CGDipSnapShot {
 	; Gets colour of a pixel relative to the screen (As long as it is inside the snapshot)
 	; Returns -1 if asked for a pixel outside the snapshot
 	PixelGetColor(xpos,ypos){
+		if (xpos < this.Coords.x || ypos < this.Coords.y || xpos > (this.Coords.x + this.Coords.w) || ypos > (this.Coords.y + this.Coords.h) ){
+			return {rgb: -1}
+		}
 		xpos := xpos - this.Coords.x
 		ypos := ypos - this.Coords.y
-
-		if ((xpos < 0 || xpos > this.Coords.w) || (ypos < 0 || ypos > this.Coords.h) ){
-			return -1
-		}
-
+		
 		return this.SnapshotGetColor(xpos,ypos)
 	}
 
@@ -64,7 +71,7 @@ Class CGDipSnapShot {
 		}
 		ret := GDIP_GetPixel(this.pBitmap, xpos, ypos)
 		ret := this.ARGBtoRGB(ret)
-		return ret		
+		return new this.Color(ret)
 	}
 
 	; Converts hex ("0xFFFFFF" as a string) to an object of r/g/b integers
@@ -114,4 +121,31 @@ Class CGDipSnapShot {
 		DeleteObject(this.hBitmap)
 		Gdip_ShutDown(this.pToken)
 	}
+	
+	Class Color {
+		__New(RGB){
+			this._RGB := RGB
+		}
+		
+		; Implement RGB and R, G, B as Dynamic Properties
+		__Get(aName := ""){
+			if (aName = "RGB"){
+				; Return RGB in Hexadecimal (eg 0xFF00AA) format
+				SetFormat, IntegerFast, hex
+				ret := this._RGB
+				ret += 0
+				ret .= ""
+				SetFormat, IntegerFast, d
+				return ret
+			} else if (aName = "R"){
+				; Return red in Decimal format
+				return (this._RGB >> 16) & 255
+			} else if (aName = "G"){
+				return (this._RGB >> 8) & 255
+			} else if (aName = "B"){
+				return this._RGB & 255
+			}
+		}
+	}
+
 }
