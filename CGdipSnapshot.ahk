@@ -26,7 +26,10 @@ Class CGDipSnapShot {
 	g: The Green component...
 	b: The Blue component...
 	
-	Color Objects also have Compare() and Diff() methods
+	The PixelScreen[] and PixelSnap[] arrays (See below) are arrays of Color objects.
+	
+	Color Objects also have Compare() and Diff() methods, eg:
+	snap.PixelScreen[0,0].Compare(snap.PixelScreen[1,1])
 	
 	"Public" Properties - Get and Set These ========================
 	
@@ -36,6 +39,7 @@ Class CGDipSnapShot {
 	eg xpos := snap.Coords.x
 	Setting will move the snapshot, and reset it (delete the image from memory)!
 	eg snap.Coords.x := 100
+	
 	
 	* PixelScreen (x,y Array of Color Objects)
 	Use to read colors from the snapshot, but using Screen coordinates.
