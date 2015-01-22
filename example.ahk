@@ -46,8 +46,14 @@ out .= "PixelSnap[0,0] result: " snap.PixelSnap[0,0].rgb "`n"
 
 out .= "RGB Values: (" snap.PixelSnap[0,0].rgb ") = {r: " snap.PixelSnap[0,0].r ", g: " snap.PixelSnap[0,0].g ", b: " snap.PixelSnap[0,0].b "}"
 
-snap.Set({x: 100, y: 200})
+; Ways of moving the snapshot
+snap.Coords.x := 400
+snap.Coords.h := 100
+snap.SetCoords({x: 300, h: 200})
+
 msgbox % out
+
+; Comparing
 
 return
 

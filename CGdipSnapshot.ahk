@@ -5,29 +5,78 @@ By evilc@evilc.com
 Use Gdip_All.ahk from this page: http://www.autohotkey.com/board/topic/29449-gdi-standard-library-145-by-tic/
 Place it in C:\Program Files\Autohotkey\Lib (Create Lib folder if it does not exist)
 
+Documentation can largely be gleaned from the comments.
+Consider anything prefixed with _ as "internal" and not to be messed with unless you know what you are doing.
+
 ToDo:
-* Compare to compare to this (only accept one other colour as arg)
-* "Private" stuff to underscore prefix
+* Compare to compare to this (only accept one other color as arg)
 
 */
 #include <gdip_all>
 
 Class CGDipSnapShot {
-	pToken := 0
-	pBitmap := 0 							; bitmap image
-	hBitmap := 0 							; HWND for bitmap?
-	Coords := {x: 0, y: 0, w: 0, h: 0} 		; Coords of snapshot area relative to screen
+	/*
+	Color Objects.
+	Returned values of most color querying methods will return a Color Object.
+	Color Objects have the following properties:
+	rgb: Color value in hex, or -1 if there was an error.
+	eg 0xFF0000
+	r: The Red component of the color, in decimal (or -1 if there was an error)
+	eg: 255
+	g: The Green component...
+	b: The Blue component...
+	
+	"Public" Properties - Get and Set These ========================
+	
+	Undeclared but available to class users (via __Get and __Set meta-functions)
+	* Coords (object)
+	The Coordinates (x,y,w,h) of the snapshot.
+	eg xpos := snap.Coords.x
+	Setting will move the snapshot, and reset it (delete the image from memory)!
+	eg snap.Coords.x := 100
+	
+	* PixelScreen (x,y Array of Color Objects)
+	Use to read colors from the snapshot, but using Screen coordinates.
+	eg
+	col := snap.PixelScreen[100,200]
+	msgbox % "RGB value is: " col.rgb
+	or
+	msgbox % "RGB value is: " snap.PixelScreen[100,200].rgb
+	
+	When reading from PixelScreen, results will be cached, so subsequent reads of the same pixel will not make a DLL call.
+	
+	
+	* PixelSnap
+	PixelSnap operates in the same way as PixelScreen, but using Snapshot coordinates.
+	eg
+	msgbox % "RGB value is: " snap.PixelScreen[0,0].rgb
+	*/
+	
+	; "private" Properties - Do not attempt to Set or Get! ===============
+	; Coords of snapshot area relative to screen
+	; Access via this.Coords instead!
+	_Coords := {x: 0, y: 0, w: 0, h: 0}
+
+	; Cache of RGB value for pixels in the Snapshot.
+	; Access via this.PixelSnap[] or this.PixelScreen[] instead!
+	_PixelCache := [[],[]]
+	
+	; Internal - you should not need these at all
 	_SnapshotTaken := 0
 	_NegativeValue := {rgb: -1, r: -1, g: -1, b: -1}
-	_PixelCache := [[],[]]
 
-	; === User Functions ==================================================================================================================================
+	; GDI stuff for the snapshot. You are unlikely to need these
+	pToken := 0
+	pBitmap := 0 								; bitmap image
+	hBitmap := 0 								; HWND for bitmap?
+
+	; === User Methods ==================================================================================================================================
 	; Intended for use by people using the class.
 
 	; Take a new Snapshot
 	TakeSnapshot(){
 		this._ResetSnapshot()
-		this.pBitmap := GDIP_BitmapFromScreen(this.Coords.x "|" this.Coords.y "|" this.Coords.w "|" this.Coords.h)
+		this.pBitmap := GDIP_BitmapFromScreen(this._Coords.x "|" this._Coords.y "|" this._Coords.w "|" this._Coords.h)
 		this._SnapshotTaken := 1
 		return
 	}
@@ -61,18 +110,23 @@ Class CGDipSnapShot {
 	; Move / Resize the Snapshot after creation
 	; Pass an object containing which properties you wish to set.
 	; eg to set only x and h to 0, but leave y and w the same, pass {x: 0, h:0}
-	Set(obj){
+	SetCoords(obj){
 		was_set := 0
 		for key, value in Obj {
-			if (key in x,y,w,h){
+			if (key = "x" || key = "y" || key = "w" || key = "h"){
 				was_set++
-				this.Coords[key] := value
+				this._Coords[key] := value
 			}
 		}
 		; If moved or resized, reset the Pixel Cache
 		if (was_set){
 			this._ResetSnapshot()
 		}
+	}
+	
+	; Return the Coords object, for completeness
+	GetCoords(){
+		return this._Coords
 	}
 	
 	; Compares r/g/b integer objects, with a tolerance
@@ -102,13 +156,13 @@ Class CGDipSnapShot {
 	
 	; Converts Screen coords to Snapshot coords
 	ScreenToSnap(x,y){
-		return {x: x - this.Coords.x, y: y - this.Coords.y}
+		return {x: x - this._Coords.x, y: y - this._Coords.y}
 	}
 
 	; Returns true if the snapshot coordinates are valid (eg x not bigger than width)
 	; NOT for telling if a screen coord is inside the snapshot
 	IsSnapCoord(xpos,ypos){
-		if (xpos < 0 || xpos > this.Coords.w || ypos < 0 || ypos > this.Coords.h){
+		if (xpos < 0 || xpos > this._Coords.w || ypos < 0 || ypos > this._Coords.h){
 			return 0
 		}
 		return 1
@@ -116,15 +170,15 @@ Class CGDipSnapShot {
 	
 	; Is a screen coord inside the snapshot area?
 	IsInsideSnap(xpos,ypos){
-		if (xpos < this.Coords.x || ypos < this.Coords.y || xpos > (this.Coords.x + this.Coords.w) || ypos > (this.Coords.y + this.Coords.h) ){
+		if (xpos < this._Coords.x || ypos < this._Coords.y || xpos > (this._Coords.x + this._Coords.w) || ypos > (this._Coords.y + this._Coords.h) ){
 			return 0
 		}
 		return 1
 	}
 	
-	; ===== Available for End-user use, but not advised (Use alternatives) ===================================================
+	; ===== Available for End-user use, but not advised (Use better alternatives) ===================================================
 	
-	; Gets colour of a pixel relative to the screen (As long as it is inside the snapshot)
+	; Gets color of a pixel relative to the screen (As long as it is inside the snapshot)
 	; Returns -1 if asked for a pixel outside the snapshot
 	; Advise use of PixelScreen[] Array instead of this function, as results are cached
 	PixelGetColor(xpos,ypos){
@@ -133,13 +187,13 @@ Class CGDipSnapShot {
 			return this._NegativeValue
 		}
 		; Work out which pixel in the Snapshot was requested
-		xpos := xpos - this.Coords.x
-		ypos := ypos - this.Coords.y
+		xpos := xpos - this._Coords.x
+		ypos := ypos - this._Coords.y
 		
 		return this.SnapshotGetColor(xpos,ypos)
 	}
 
-	; Gets colour of a pixel relative to the SnapShot
+	; Gets color of a pixel relative to the SnapShot
 	; Advise use of PixelSnap[] Array instead of this function, as results are cached.
 	SnapshotGetColor(xpos, ypos){
 		if (!this._SnapshotTaken){
@@ -150,7 +204,7 @@ Class CGDipSnapShot {
 		}
 		ret := GDIP_GetPixel(this.pBitmap, xpos, ypos)
 		ret := this.ARGBtoRGB(ret)
-		return new this.Color(ret)
+		return new this._CColor(ret)
 	}
 	
 	; ===== Helper functions, not used internally ============================================================================
@@ -182,7 +236,8 @@ Class CGDipSnapShot {
 
 	; Constructor
 	__New(x,y,w,h){
-		this.Coords := {x: x, y: y, w: w, h: h}
+		this.Coords := new this._CCoords()
+		this._Coords := {x: x, y: y, w: w, h: h}
 		this.pToken := Gdip_Startup()
 	}
 
@@ -193,9 +248,11 @@ Class CGDipSnapShot {
 		Gdip_ShutDown(this.pToken)
 	}
 	
-	; Implement Dynamic Property for Pixel Cache
-	__Get(aName, x, y){
-		if (aName = "PixelSnap"){
+	; Implements Pixel Cache via Dynamic Properties
+	__Get(aName, x := "", y := ""){
+		if (aName = "Coords"){
+			return this._Coords
+		} else if (aName = "PixelSnap"){
 			if (this._PixelCache[x,y] == ""){
 				this._PixelCache[x,y] := this.SnapshotGetColor(x,y)
 			}
@@ -215,8 +272,25 @@ Class CGDipSnapShot {
 		}
 	}
 	
-	; Colour class - provides r/g/b values via Dynamic Properties
-	Class Color {
+	; Implements snapshot coords Get / Set via Dynamic Properties.
+	; Automatically resets snapshot if viewport moved
+	Class _CCoords {
+		__Get(aName){
+			if (aName = "x" || aName = "y" || aName = "w" || aName = "h"){
+				return this._Coords[aName]
+			}
+		}
+		
+		__Set(aName, aValue){
+			if (aName = "x" || aName = "y" || aName = "w" || aName = "h"){
+				this._Coords[aName] = aValue
+				this._ResetSnapshot()
+			}
+		}
+	}
+	
+	; color class - provides r/g/b values via Dynamic Properties
+	Class _CColor {
 		__New(RGB){
 			this._RGB := RGB
 		}
