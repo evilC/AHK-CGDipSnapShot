@@ -45,15 +45,22 @@ out .= "PixelScreen[" SNAPSHOT_X ", " SNAPSHOT_Y "] result: " snap.PixelScreen[S
 out .= "PixelSnap[0,0] result: " snap.PixelSnap[0,0].rgb "`n"
 
 out .= "RGB Values: (" snap.PixelSnap[0,0].rgb ") = {r: " snap.PixelSnap[0,0].r ", g: " snap.PixelSnap[0,0].g ", b: " snap.PixelSnap[0,0].b "}"
-
-; Ways of moving the snapshot
-snap.Coords.x := 400
-snap.Coords.h := 100
-snap.SetCoords({x: 300, h: 200})
+test := new CGdipSnapshot(1,1,100,100)
 
 msgbox % out
 
+; ToDo:
+; Add more examples
+
+; Ways of moving the snapshot
+;snap.Coords.x := 400
+;snap.Coords.h := 100
+;snap.SetCoords({x: 300, h: 200})
+
 ; Comparing
+;res := snap.PixelSnap[0,0].Diff({r:255, b:255, g: 0})
+;res := snap.PixelSnap[0,0].Compare({r:255, b:255, g: 0},0)
+;msgbox % snap.PixelSnap[0,0].rgb ": " res
 
 return
 

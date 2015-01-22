@@ -26,6 +26,8 @@ Class CGDipSnapShot {
 	g: The Green component...
 	b: The Blue component...
 	
+	Color Objects also have Compare() and Diff() methods
+	
 	"Public" Properties - Get and Set These ========================
 	
 	Undeclared but available to class users (via __Get and __Set meta-functions)
@@ -129,29 +131,20 @@ Class CGDipSnapShot {
 		return this._Coords
 	}
 	
-	; Compares r/g/b integer objects, with a tolerance
+	; Compares two r/g/b integer objects, with a tolerance
 	; returns true or false
+	; Note! NOTHING to do with any pixels in the snapshot - purely compares two hex values.
 	Compare(c1, c2, tol := 20) {
-		if (!this._SnapshotTaken){
-			this.TakeSnapshot()
-		}
-		diff := Abs( c1.r - c2.r ) "," Abs( c1.g - c2.g ) "," Abs( c1.b - c2.b )
-		sort diff,N D,
-
-		StringSplit, diff, diff, `,
-		return diff%diff0% < tol
+		return (this.Diff(c1,c2) <= tol)
 	}
 
 	; Returns the Difference between two colors
 	Diff(c1,c2){
-		if (!this._SnapshotTaken){
-			this.TakeSnapshot()
-		}
 		diff := Abs( c1.r - c2.r ) "," Abs( c1.g - c2.g ) "," Abs( c1.b - c2.b )
 		sort diff,N D,
 
 		StringSplit, diff, diff, `,
-		return diff%diff0% < tol
+		return diff%diff0%
 	}
 	
 	; Converts Screen coords to Snapshot coords
@@ -204,7 +197,7 @@ Class CGDipSnapShot {
 		}
 		ret := GDIP_GetPixel(this.pBitmap, xpos, ypos)
 		ret := this.ARGBtoRGB(ret)
-		return new this._CColor(ret)
+		return new this._CColor(ret, this)
 	}
 	
 	; ===== Helper functions, not used internally ============================================================================
@@ -291,13 +284,17 @@ Class CGDipSnapShot {
 	
 	; color class - provides r/g/b values via Dynamic Properties
 	Class _CColor {
-		__New(RGB){
+		__New(RGB, parent){
 			this._RGB := RGB
+			this._parent := parent
 		}
 		
 		; Implement RGB and R, G, B as Dynamic Properties
 		__Get(aName := ""){
 			if (aName = "RGB"){
+				if (!this._parent._SnapshotTaken){
+					return -1
+				}
 				; Return RGB in Hexadecimal (eg 0xFF00AA) format
 				SetFormat, IntegerFast, hex
 				ret := this._RGB
@@ -306,13 +303,32 @@ Class CGDipSnapShot {
 				SetFormat, IntegerFast, d
 				return ret
 			} else if (aName = "R"){
+				if (!this._parent._SnapshotTaken){
+					return -1
+				}
 				; Return red in Decimal format
 				return (this._RGB >> 16) & 255
 			} else if (aName = "G"){
+				if (!this._parent._SnapshotTaken){
+					return -1
+				}
 				return (this._RGB >> 8) & 255
 			} else if (aName = "B"){
+				if (!this._parent._SnapshotTaken){
+					return -1
+				}
 				return this._RGB & 255
 			}
+		}
+		
+		; Compares this pixel to a provided color, with a tolerance
+		Compare(c2, tol := 20){
+			return this._parent.Compare(this, c2, tol)
+		}
+		
+		; Returns the Difference between two colors
+		Diff(c2){
+			return this._parent.Diff(this, c2)
 		}
 	}
 
