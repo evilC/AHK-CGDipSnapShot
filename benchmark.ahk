@@ -8,21 +8,34 @@ global snap2b := new CGDipSnapshot(1,1,10,10)
 snap2b.TakeSnapshot()
 global snap3 := new CGDipSnapshot(1,1,100,100)
 
-
+; Check basic AHK performance
 QPX.Add("AHK_Pixel_Get_Color")
+; Check how long lib takes to grab a 1x1 snapshot with GDI
 QPX.Add("GDI_Take_Snap_1x1")
+; Check how long it takes to get pixel from the snapshot
 QPX.Add("GDI_PixelSnap")
+; Repeat - does cache work?
 QPX.Add("GDI_PixelSnap")
+; Re-Do single pixel test, to see how long it takes to flush old bitmap and get a new one
 QPX.Add("GDI_Take_Snap_1x1")
+; Repeat color grabs
 QPX.Add("GDI_PixelSnap")
 QPX.Add("GDI_PixelSnap")
+; See how long it takes to grab a 10x10 snapshot
 QPX.Add("GDI_Take_Snap_10x10")
+; See how long it takes to grab a 100x100 snapshot
 QPX.Add("GDI_Take_Snap_100x100")
+; Compare two objects (note: same image, different objs, so no cache hit at all in first pass)
 QPX.Add("GDI_Compare_Snap_10x10")
+; Repeat test - should be healthy cache accleration
 QPX.Add("GDI_Compare_Snap_10x10")
+; Re-check
 QPX.Add("GDI_Compare_Snap_10x10")
+; Clear the cache, but keep the bitmap.
 QPX.Add("GDI_Reset_Snaps")
+; Repeat compare test - should be no cache hit
 QPX.Add("GDI_Compare_Snap_10x10")
+; Repeat - cache should hit again
 QPX.Add("GDI_Compare_Snap_10x10")
 
 QPX.Test(1)
@@ -49,8 +62,8 @@ GDI_Compare_Snap_10x10(){
 
 GDI_Reset_Snaps(){
 	; not a benchmark, just resetting between benchmarks
-	snap2a._ResetSnapshot()
-	snap2b._ResetSnapshot()
+	snap2a._PixelCache := [[],[]]
+	snap2b._PixelCache := [[],[]]
 }
 
 AHK_Pixel_Get_Color(){
