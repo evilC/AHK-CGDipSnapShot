@@ -9,7 +9,10 @@ snap2b.TakeSnapshot()
 global snap3 := new CGDipSnapshot(1,1,100,100)
 
 ; Check basic AHK performance
-QPX.Add("AHK_Pixel_Get_Color")
+QPX.Add("AHK_Pixel_Get_Color1")
+QPX.Add("AHK_Pixel_Get_Color1")
+QPX.Add("AHK_Pixel_Get_Color2")
+QPX.Add("AHK_Pixel_Get_Color2")
 ; Check how long lib takes to grab a 1x1 snapshot with GDI
 QPX.Add("GDI_Take_Snap_1x1")
 ; Check how long it takes to get pixel from the snapshot
@@ -39,6 +42,10 @@ QPX.Add("GDI_Compare_Snap_10x10")
 QPX.Add("GDI_Compare_Snap_10x10")
 
 QPX.Test(1)
+return
+
+GuiClose:
+	ExitApp
 
 GDI_Take_Snap_1x1() {
 	snap1.TakeSnapshot()
@@ -66,8 +73,13 @@ GDI_Reset_Snaps(){
 	snap2b._PixelCache := [[],[]]
 }
 
-AHK_Pixel_Get_Color(){
+AHK_Pixel_Get_Color1(){
 	PixelGetColor, ov, 1,1, RGB
+	return ov
+}
+
+AHK_Pixel_Get_Color2(){
+	PixelGetColor, ov, 2,2, RGB
 	return ov
 }
 
