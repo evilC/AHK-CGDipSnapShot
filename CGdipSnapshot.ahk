@@ -6,10 +6,10 @@ Use Gdip_All.ahk from this page: http://www.autohotkey.com/board/topic/29449-gdi
 Place it in C:\Program Files\Autohotkey\Lib (Create Lib folder if it does not exist)
 
 ToDo:
-* Cache pixel colours in array
-* r/g/b values via dynamic properties
 * Set Pos / Size command (clear cache too)
 * Compare to compare to this (only accept one other colour as arg)
+* "Private" stuff to underscore prefix
+
 */
 #include <gdip_all>
 
@@ -18,6 +18,8 @@ Class CGDipSnapShot {
 	pBitmap := 0 							; bitmap image
 	hBitmap := 0 							; HWND for bitmap?
 	Coords := {x: 0, y: 0, w: 0, h: 0} 		; Coords of snapshot area relative to screen
+	_NegativeValue := {rgb: -1, r: -1, g: -1, b: -1}
+	_PixelCache := [[],[]]
 
 	; === User Functions ==================================================================================================================================
 	; Intended for use by people using the class.
@@ -29,6 +31,7 @@ Class CGDipSnapShot {
 			Gdip_DisposeImage(this.pBitmap)
 		}
 		this.pBitmap := GDIP_BitmapFromScreen(this.Coords.x "|" this.Coords.y "|" this.Coords.w "|" this.Coords.h)
+		this._ResetPixelCache()
 		return
 	}
 
@@ -55,9 +58,11 @@ Class CGDipSnapShot {
 	; Gets colour of a pixel relative to the screen (As long as it is inside the snapshot)
 	; Returns -1 if asked for a pixel outside the snapshot
 	PixelGetColor(xpos,ypos){
+		; Return RGB value of -1 if outside snapshot area
 		if (xpos < this.Coords.x || ypos < this.Coords.y || xpos > (this.Coords.x + this.Coords.w) || ypos > (this.Coords.y + this.Coords.h) ){
-			return {rgb: -1}
+			return this._NegativeValue
 		}
+		; Work out which pixel in the Snapshot was requested
 		xpos := xpos - this.Coords.x
 		ypos := ypos - this.Coords.y
 		
@@ -100,6 +105,10 @@ Class CGDipSnapShot {
 
 	; ===== Mainly for internal use. ==========================================================================================
 
+	_ResetPixelCache(){
+		this._PixelCache := [[],[]]
+	}
+	
 	; Converts RGB with Alpha Channel to RGB
 	ARGBtoRGB( ARGB ){
 		SetFormat, IntegerFast, hex
@@ -120,6 +129,16 @@ Class CGDipSnapShot {
 		Gdip_DisposeImage(this.pBitmap)
 		DeleteObject(this.hBitmap)
 		Gdip_ShutDown(this.pToken)
+	}
+	
+	; Implement Dynamic Property for Pixel Cache
+	__Get(aName, x, y){
+		if (aName = "Pixel"){
+			if (this._PixelCache[x,y] == ""){
+				this._PixelCache[x,y] := this.SnapshotGetColor(x,y)
+			}
+			return this._PixelCache[x,y]
+		}
 	}
 	
 	Class Color {
