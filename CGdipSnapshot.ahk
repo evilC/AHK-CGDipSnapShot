@@ -6,7 +6,6 @@ Use Gdip_All.ahk from this page: http://www.autohotkey.com/board/topic/29449-gdi
 Place it in C:\Program Files\Autohotkey\Lib (Create Lib folder if it does not exist)
 
 ToDo:
-* Set Pos / Size command (clear cache too)
 * Compare to compare to this (only accept one other colour as arg)
 * "Private" stuff to underscore prefix
 
@@ -18,6 +17,7 @@ Class CGDipSnapShot {
 	pBitmap := 0 							; bitmap image
 	hBitmap := 0 							; HWND for bitmap?
 	Coords := {x: 0, y: 0, w: 0, h: 0} 		; Coords of snapshot area relative to screen
+	_SnapshotTaken := 0
 	_NegativeValue := {rgb: -1, r: -1, g: -1, b: -1}
 	_PixelCache := [[],[]]
 
@@ -26,12 +26,9 @@ Class CGDipSnapShot {
 
 	; Take a new Snapshot
 	TakeSnapshot(){
-		if (this.pBitmap){
-			; delete old bitmap
-			Gdip_DisposeImage(this.pBitmap)
-		}
+		this._ResetSnapshot()
 		this.pBitmap := GDIP_BitmapFromScreen(this.Coords.x "|" this.Coords.y "|" this.Coords.w "|" this.Coords.h)
-		this._ResetPixelCache()
+		this._SnapshotTaken := 1
 		return
 	}
 
@@ -40,6 +37,9 @@ Class CGDipSnapShot {
 	; Gui, Add, Text, 0xE x5 y5 w200 h200 hwndSnapshotPreview
 	; Then ShowSnapshot(SnapshotPreview) to show the snapshot in that GUI item
 	ShowSnapshot(hwnd){
+		if (!this._SnapshotTaken){
+			this.TakeSnapshot()
+		}
 		if (this.hBitmap){
 			; Delete old hwnd
 			DeleteObject(this.hBitmap)
@@ -52,12 +52,35 @@ Class CGDipSnapShot {
 	; Save snapshot to file
 	; Supported extensions are: .BMP,.DIB,.RLE,.JPG,.JPEG,.JPE,.JFIF,.GIF,.TIF,.TIFF,.PNG
 	SaveSnapshot(filename, quality := 100){
+		if (!this._SnapshotTaken){
+			this.TakeSnapshot()
+		}
 		return Gdip_SaveBitmapToFile(this.pBitmap, filename, quality)
 	}
 
+	; Move / Resize the Snapshot after creation
+	; Pass an object containing which properties you wish to set.
+	; eg to set only x and h to 0, but leave y and w the same, pass {x: 0, h:0}
+	Set(obj){
+		was_set := 0
+		for key, value in Obj {
+			if (key in x,y,w,h){
+				was_set++
+				this.Coords[key] := value
+			}
+		}
+		; If moved or resized, reset the Pixel Cache
+		if (was_set){
+			this._ResetSnapshot()
+		}
+	}
+	
 	; Compares r/g/b integer objects, with a tolerance
 	; returns true or false
 	Compare(c1, c2, tol := 20) {
+		if (!this._SnapshotTaken){
+			this.TakeSnapshot()
+		}
 		diff := Abs( c1.r - c2.r ) "," Abs( c1.g - c2.g ) "," Abs( c1.b - c2.b )
 		sort diff,N D,
 
@@ -67,6 +90,9 @@ Class CGDipSnapShot {
 
 	; Returns the Difference between two colors
 	Diff(c1,c2){
+		if (!this._SnapshotTaken){
+			this.TakeSnapshot()
+		}
 		diff := Abs( c1.r - c2.r ) "," Abs( c1.g - c2.g ) "," Abs( c1.b - c2.b )
 		sort diff,N D,
 
@@ -116,8 +142,10 @@ Class CGDipSnapShot {
 	; Gets colour of a pixel relative to the SnapShot
 	; Advise use of PixelSnap[] Array instead of this function, as results are cached.
 	SnapshotGetColor(xpos, ypos){
+		if (!this._SnapshotTaken){
+			this.TakeSnapshot()
+		}
 		if (!this.IsSnapCoord(xpos, ypos)){
-			;return -1
 			return this._NegativeValue
 		}
 		ret := GDIP_GetPixel(this.pBitmap, xpos, ypos)
@@ -134,7 +162,12 @@ Class CGDipSnapShot {
 
 	; ===== Mainly for internal use. ==========================================================================================
 
-	_ResetPixelCache(){
+	_ResetSnapshot(){
+		if (this.pBitmap){
+			; delete old bitmap
+			Gdip_DisposeImage(this.pBitmap)
+		}
+		this._SnapshotTaken := 0
 		this._PixelCache := [[],[]]
 	}
 	
