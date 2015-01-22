@@ -17,8 +17,10 @@ Example script included.
 ###Using this library in your projects
 ####Setup
 #####Easy Method
-1. Clone this project using GitHub for Windows.  
-If viewing this page on Github, click **Clone in Desktop** on the right edge of the page.  
+1. Clone this project using GitHub for Windows.
+You can click here
+On the main page for this project on GitHub, click **Clone in Desktop** on the right edge of the page.  
+Or you can try [this link](github-windows://openRepo/https://github.com/evilC/AHK-CGDipSnapShot).  
 This will clone this Project ("Repository") onto your computer.  
 If there are updates to this Library, you can then Synch with GitHub to get the latest version. 
 1. Run `Setup.exe` from the repoistory you just downloaded.  
