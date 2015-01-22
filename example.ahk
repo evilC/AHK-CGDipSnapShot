@@ -32,18 +32,19 @@ out := "Snapshot top left: " SNAPSHOT_X "," SNAPSHOT_Y "`n"
 out .= "Width: " SNAPSHOT_WIDTH ", Height: " SNAPSHOT_HEIGHT "`n"
 
 ; Get a pixel relative to the screen. Will fail as 1,1 is not inside the Snapshot area.
-out .= "PixelGetColor(1,1) result: " snap.PixelGetColor(1,1).rgb "`n"
+out .= "PixelScreen[1,1] result: " snap.PixelScreen[1,1].rgb "`n"
 
 ; Get a pixel relative to the screen. Will succeed as is inside the Snapshot area.
-out .= "PixelGetColor(" SNAPSHOT_X ", " SNAPSHOT_Y ") result: " snap.PixelGetColor(SNAPSHOT_X,SNAPSHOT_Y).rgb "`n"
-
-; Get a pixel relative to the Snapshot. Note that coordinate 0,0 gives the same value as the Screen coordinate.
-; Also note how the pixel value is acessed through the Pixel[] array.
+; Note how the pixel value is acessed through the PixelScreen[] array.
 ; When doing so, PixelGetColor is automatically called as needed (ie only once for each pixel) and results are Cached (Until a new snapshot is taken)
 ; This saves having to make loads of variables in your code - just inspect the Pixel[] array as much as you like without worry of wasting DLL calls.
-out .= "Pixel[0,0] result: " snap.Pixel[0,0].rgb "`n"
+out .= "PixelScreen[" SNAPSHOT_X ", " SNAPSHOT_Y "] result: " snap.PixelScreen[SNAPSHOT_X,SNAPSHOT_Y].rgb "`n"
 
-out .= "RGB Values: (" snap.Pixel[0,0].rgb ") = {r: " snap.Pixel[0,0].r ", g: " snap.Pixel[0,0].g ", b: " snap.Pixel[0,0].b "}"
+; Get a pixel relative to the Snapshot. Note that coordinate 0,0 gives the same value as the Screen coordinate.
+; PixelSnap[] is Cached like PixelScreen[]
+out .= "PixelSnap[0,0] result: " snap.PixelSnap[0,0].rgb "`n"
+
+out .= "RGB Values: (" snap.PixelSnap[0,0].rgb ") = {r: " snap.PixelSnap[0,0].r ", g: " snap.PixelSnap[0,0].g ", b: " snap.PixelSnap[0,0].b "}"
 
 msgbox % out
 

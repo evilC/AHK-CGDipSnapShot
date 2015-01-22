@@ -55,35 +55,6 @@ Class CGDipSnapShot {
 		return Gdip_SaveBitmapToFile(this.pBitmap, filename, quality)
 	}
 
-	; Gets colour of a pixel relative to the screen (As long as it is inside the snapshot)
-	; Returns -1 if asked for a pixel outside the snapshot
-	PixelGetColor(xpos,ypos){
-		; Return RGB value of -1 if outside snapshot area
-		if (xpos < this.Coords.x || ypos < this.Coords.y || xpos > (this.Coords.x + this.Coords.w) || ypos > (this.Coords.y + this.Coords.h) ){
-			return this._NegativeValue
-		}
-		; Work out which pixel in the Snapshot was requested
-		xpos := xpos - this.Coords.x
-		ypos := ypos - this.Coords.y
-		
-		return this.SnapshotGetColor(xpos,ypos)
-	}
-
-	; Gets colour of a pixel relative to the SnapShot
-	SnapshotGetColor(xpos, ypos){
-		if (xpos > this.Coords.w || ypos > this.Coords.h){
-			return -1
-		}
-		ret := GDIP_GetPixel(this.pBitmap, xpos, ypos)
-		ret := this.ARGBtoRGB(ret)
-		return new this.Color(ret)
-	}
-
-	; Converts hex ("0xFFFFFF" as a string) to an object of r/g/b integers
-	ToRGB(color) {
-	    return { "r": (color >> 16) & 0xFF, "g": (color >> 8) & 0xFF, "b": color & 0xFF }
-	}
-
 	; Compares r/g/b integer objects, with a tolerance
 	; returns true or false
 	Compare(c1, c2, tol := 20) {
@@ -101,6 +72,64 @@ Class CGDipSnapShot {
 
 		StringSplit, diff, diff, `,
 		return diff%diff0% < tol
+	}
+	
+	; Converts Screen coords to Snapshot coords
+	ScreenToSnap(x,y){
+		return {x: x - this.Coords.x, y: y - this.Coords.y}
+	}
+
+	; Returns true if the snapshot coordinates are valid (eg x not bigger than width)
+	; NOT for telling if a screen coord is inside the snapshot
+	IsSnapCoord(xpos,ypos){
+		if (xpos < 0 || xpos > this.Coords.w || ypos < 0 || ypos > this.Coords.h){
+			return 0
+		}
+		return 1
+	}
+	
+	; Is a screen coord inside the snapshot area?
+	IsInsideSnap(xpos,ypos){
+		if (xpos < this.Coords.x || ypos < this.Coords.y || xpos > (this.Coords.x + this.Coords.w) || ypos > (this.Coords.y + this.Coords.h) ){
+			return 0
+		}
+		return 1
+	}
+	
+	; ===== Available for End-user use, but not advised (Use alternatives) ===================================================
+	
+	; Gets colour of a pixel relative to the screen (As long as it is inside the snapshot)
+	; Returns -1 if asked for a pixel outside the snapshot
+	; Advise use of PixelScreen[] Array instead of this function, as results are cached
+	PixelGetColor(xpos,ypos){
+		; Return RGB value of -1 if outside snapshot area
+		if (!this.IsInsideSnap(xpos,ypos)){
+			return this._NegativeValue
+		}
+		; Work out which pixel in the Snapshot was requested
+		xpos := xpos - this.Coords.x
+		ypos := ypos - this.Coords.y
+		
+		return this.SnapshotGetColor(xpos,ypos)
+	}
+
+	; Gets colour of a pixel relative to the SnapShot
+	; Advise use of PixelSnap[] Array instead of this function, as results are cached.
+	SnapshotGetColor(xpos, ypos){
+		if (!this.IsSnapCoord(xpos, ypos)){
+			;return -1
+			return this._NegativeValue
+		}
+		ret := GDIP_GetPixel(this.pBitmap, xpos, ypos)
+		ret := this.ARGBtoRGB(ret)
+		return new this.Color(ret)
+	}
+	
+	; ===== Helper functions, not used internally ============================================================================
+	
+	; Converts hex ("0xFFFFFF" as a string) to an object of r/g/b integers
+	ToRGB(color) {
+	    return { "r": (color >> 16) & 0xFF, "g": (color >> 8) & 0xFF, "b": color & 0xFF }
 	}
 
 	; ===== Mainly for internal use. ==========================================================================================
@@ -133,14 +162,27 @@ Class CGDipSnapShot {
 	
 	; Implement Dynamic Property for Pixel Cache
 	__Get(aName, x, y){
-		if (aName = "Pixel"){
+		if (aName = "PixelSnap"){
 			if (this._PixelCache[x,y] == ""){
 				this._PixelCache[x,y] := this.SnapshotGetColor(x,y)
 			}
 			return this._PixelCache[x,y]
 		}
+		if (aName = "PixelScreen"){
+			col := this.PixelGetColor(x,y)
+			; Convert to snapshot coords for array index
+			coords := this.ScreenToSnap(x,y)
+			x := coords.x
+			y := coords.y
+			; Check coords are within snapshot
+			if (col.rgb != -1){
+				this._PixelCache[x,y] := col
+			}
+			return col
+		}
 	}
 	
+	; Colour class - provides r/g/b values via Dynamic Properties
 	Class Color {
 		__New(RGB){
 			this._RGB := RGB
