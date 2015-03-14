@@ -16,6 +16,10 @@ Example script included.
 
 ###Using this library in your projects
 ####Setup
+#####All Methods
+Obtain Gdip_all.ahk from [here](https://github.com/aviaryan/Clipjump/blob/master/lib/Gdip_All.ahk) and place in `C:\Program Files\AutoHotkey\lib`
+Then follow either "easy" or "manual" method.
+
 #####Easy Method
 1. Clone this project using GitHub for Windows.
 You can click here
