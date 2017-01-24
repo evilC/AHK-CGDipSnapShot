@@ -161,7 +161,7 @@ Class CGDipSnapShot {
 		}
 		ret := GDIP_GetPixel(this.pBitmap, xpos, ypos)
 		ret := this.ARGBtoRGB(ret)
-		return new this._CColor(ret, this)
+		return new this._CColor(ret)
 	}
 	
 	; ===== Mainly for internal use. ==========================================================================================
@@ -241,17 +241,13 @@ Class CGDipSnapShot {
 	
 	; color class - provides r/g/b values via Dynamic Properties
 	Class _CColor {
-		__New(RGB, parent){
+		__New(RGB){
 			this._RGB := RGB
-			this._parent := parent
 		}
 		
 		; Implement RGB and R, G, B as Dynamic Properties
 		__Get(aName := ""){
 			if (aName = "RGB"){
-				if (!this._parent._SnapshotTaken){
-					return -1
-				}
 				; Return RGB in Hexadecimal (eg 0xFF00AA) format
 				SetFormat, IntegerFast, hex
 				ret := this._RGB
@@ -260,20 +256,11 @@ Class CGDipSnapShot {
 				SetFormat, IntegerFast, d
 				return ret
 			} else if (aName = "R"){
-				if (!this._parent._SnapshotTaken){
-					return -1
-				}
 				; Return red in Decimal format
 				return (this._RGB >> 16) & 255
 			} else if (aName = "G"){
-				if (!this._parent._SnapshotTaken){
-					return -1
-				}
 				return (this._RGB >> 8) & 255
 			} else if (aName = "B"){
-				if (!this._parent._SnapshotTaken){
-					return -1
-				}
 				return this._RGB & 255
 			}
 		}
@@ -281,11 +268,6 @@ Class CGDipSnapShot {
 		; Compares this pixel to a provided color, with a tolerance
 		Compare(c2, tol := 20){
 			return PixelCompare(this, c2, tol)
-		}
-		
-		; Returns the Difference between two colors
-		Diff(c2){
-			return this._parent.Diff(this, c2)
 		}
 	}
 
