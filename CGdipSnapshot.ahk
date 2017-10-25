@@ -161,7 +161,7 @@ Class CGDipSnapShot {
 		}
 		ret := GDIP_GetPixel(this.pBitmap, xpos, ypos)
 		ret := this.ARGBtoRGB(ret)
-		return new this._CColor(ret)
+		return new CColor(ret)
 	}
 	
 	; ===== Mainly for internal use. ==========================================================================================
@@ -238,40 +238,40 @@ Class CGDipSnapShot {
 			}
 		}
 	}
+}
+
+; color class - provides r/g/b values via Dynamic Properties
+Class CColor {
+	__New(RGB){
+		this._RGB := RGB
+	}
 	
-	; color class - provides r/g/b values via Dynamic Properties
-	Class _CColor {
-		__New(RGB){
-			this._RGB := RGB
-		}
-		
-		; Implement RGB and R, G, B as Dynamic Properties
-		__Get(aName := ""){
-			if (aName = "RGB"){
-				; Return RGB in Hexadecimal (eg 0xFF00AA) format
-				SetFormat, IntegerFast, hex
-				ret := this._RGB
-				ret += 0
-				ret .= ""
-				SetFormat, IntegerFast, d
-				return ret
-			} else if (aName = "R"){
-				; Return red in Decimal format
-				return (this._RGB >> 16) & 255
-			} else if (aName = "G"){
-				return (this._RGB >> 8) & 255
-			} else if (aName = "B"){
-				return this._RGB & 255
-			}
-		}
-		
-		; Compares this pixel to a provided color, with a tolerance
-		Compare(c2, tol := 20){
-			return PixelCompare(this, c2, tol)
+	; Implement RGB and R, G, B as Dynamic Properties
+	__Get(aName := ""){
+		if (aName = "RGB"){
+			; Return RGB in Hexadecimal (eg 0xFF00AA) format
+			SetFormat, IntegerFast, hex
+			ret := this._RGB
+			ret += 0
+			ret .= ""
+			SetFormat, IntegerFast, d
+			return ret
+		} else if (aName = "R"){
+			; Return red in Decimal format
+			return (this._RGB >> 16) & 255
+		} else if (aName = "G"){
+			return (this._RGB >> 8) & 255
+		} else if (aName = "B"){
+			return this._RGB & 255
 		}
 	}
-
+	
+	; Compares this pixel to a provided color, with a tolerance
+	Compare(c2, tol := 20){
+		return PixelCompare(this, c2, tol)
+	}
 }
+
 
 ; Compares two r/g/b integer objects, with a tolerance
 ; returns true or false
