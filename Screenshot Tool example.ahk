@@ -1,5 +1,5 @@
 #SingleInstance force
-#include <CGdipSnapshot>
+#include CGdipSnapshot.ahk
 coords_set := 0
 base_filename := "D:\temp\test\screenshot.png"
 gui_open := 0

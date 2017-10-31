@@ -1,5 +1,5 @@
 #SingleInstance, force
-#include <CGdipSnapshot>
+#include CGdipSnapshot.ahk
 
 OnExit, GuiClose	; Quit the script when we close the GUI
 

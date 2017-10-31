@@ -1,7 +1,7 @@
 ; Script to benchmark and test GDip / CGdipSnapshot
 
 #SingleInstance, force
-#include <CGdipSnapshot>
+#include CGdipSnapshot.ahk
 global snap1 := new CGDipSnapshot(1,1,1,1)
 global snap2a := new CGDipSnapshot(1,1,10,10)
 global snap2b := new CGDipSnapshot(1,1,10,10)
