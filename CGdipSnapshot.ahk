@@ -15,6 +15,12 @@ ToDo:
 
 Class CGDipSnapShot {
 	; "private" Properties - Do not attempt to Set or Get! ===============
+	
+	; Instance count of this lib.
+	; Only one GDIP token is used for all instances of the class
+	; This holds the number of active instances
+	static _Instances := 0
+	
 	; Coords of snapshot area relative to screen
 	; Access via this.Coords instead!
 	_Coords := {x: 0, y: 0, w: 0, h: 0}
@@ -28,7 +34,7 @@ Class CGDipSnapShot {
 	_NegativeValue := {rgb: -1, r: -1, g: -1, b: -1}
 
 	; GDI stuff for the snapshot. You are unlikely to need these
-	pToken := 0
+	static pToken := 0							; GDIP token. One is used for all class instances
 	pBitmap := 0 								; bitmap image
 	hBitmap := 0 								; HWND for bitmap?
 
@@ -188,14 +194,24 @@ Class CGDipSnapShot {
 	__New(x,y,w,h){
 		this.Coords := new this._CCoords()
 		this._Coords := {x: x, y: y, w: w, h: h}
-		this.pToken := Gdip_Startup()
+		if (this.base._Instances == 0){
+			; If this is the first instance, create the GDI+ token
+			this.base.pToken := Gdip_Startup()
+			;~ OutputDebug % "AHK| New Token: " this.base.pToken
+		}
+		this.base._Instances++
 	}
 
 	; Destructor
 	__Delete(){
 		Gdip_DisposeImage(this.pBitmap)
 		DeleteObject(this.hBitmap)
-		Gdip_ShutDown(this.pToken)
+		this.base._Instances--
+		if (this.base._Instances == 0){
+			; If this is the last instance, dispose of the GDI+ token
+			;~ OutputDebug % "AHK| Disposing GDI+ Token " this.base.pToken " ..."
+			Gdip_ShutDown(this.base.pToken)
+		}
 	}
 	
 	; Implements Pixel Cache via Dynamic Properties
