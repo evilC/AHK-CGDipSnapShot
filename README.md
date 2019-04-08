@@ -3,7 +3,7 @@ AHK-CGDipSnapShot
 
 An AHK library for working with snapshots of a portion of the screen (compare, easy conversion etc)
 
-###What does it do?
+### What does it do?
 It adds a layer on  top of the GDI+ ("Gdip") library that introduces the concept of *Snapshots*.
 
 A Snapshot is a screen grab of a box from the screen, which can then be examined using a command syntactically similar to AHK's `PixelGetColor` command. Pixel checks can be done using coordinates relative to the **Screen** or to the **Snapshot**.
@@ -14,13 +14,13 @@ You can also take multiple Snapshots at any given moment(s), easily save Shapsho
 
 Example script included.
 
-###Using this library in your projects
-####Setup
-#####All Methods
+### Using this library in your projects
+#### Setup
+##### All Methods
 Obtain Gdip_all.ahk from [here](https://github.com/aviaryan/Clipjump/blob/master/lib/Gdip_All.ahk) and place in `C:\Program Files\AutoHotkey\lib`
 Then follow either "easy" or "manual" method.
 
-#####Easy Method
+##### Easy Method
 1. Clone this project using GitHub for Windows.
 You can click here
 On the main page for this project on GitHub, click **Clone in Desktop** on the right edge of the page.  
@@ -33,12 +33,12 @@ This will check you are all set up to use the library and configure AutoHotkey s
 3. You are now set up and can use this library by putting the following line at the start of your script:  
 `#include <CGDipSnapshot>`
 
-#####Manual Method
+##### Manual Method
 If you know what you are doing, or are paranoid, or both, you can just obtain the files and `#include` as normal. The Setup app simply makes it easy for people who don't really know what they are doing to get up and running with this library. It performs the following main functions:  
 Check for out-of-date AHK version from Autohotkey.com, instead of an up-to-date version from http://ahkscript.org   
 Create an ahk file in your AHK lib folder (Usually C:\Program Files\Autohotkey\Lib) that includes the file(s) from this repository in the Github folder - thus allowing you to keep this lib in the Github repo folder, but include it from anywhere via `#include<>` syntax.
 
-####Usage
+#### Usage
 Help on usage should be obtainable from the following sources (Best to Worst):
 
 * Project [Wiki](https://github.com/evilC/AHK-CGDipSnapShot/wiki)
