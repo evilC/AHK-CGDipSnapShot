@@ -121,6 +121,11 @@ Class CGDipSnapShot {
 	ScreenToSnap(x,y){
 		return {x: x - this._Coords.x, y: y - this._Coords.y}
 	}
+	
+	; Converts Snap coords to Screen coords
+	SnapToScreen(x, y){
+		return {x: x + this._Coords.x, y: y + this._Coords.y}
+	}
 
 	; Returns true if the snapshot coordinates are valid (eg x not bigger than width)
 	; NOT for telling if a screen coord is inside the snapshot
@@ -139,6 +144,22 @@ Class CGDipSnapShot {
 		return 1
 	}
 	
+	; Perform a PixelSearch on a Snapshot
+	PixelSearch(col, tol := 20){
+		if (!col.hasKey("_RGB")){
+			col := new CColor(col)
+		}
+		Loop % this._Coords.h {
+			y := A_Index - 1
+			Loop % this._Coords.w {
+				x := A_Index - 1
+				pixel := this.SnapshotGetColor(x, y)
+				if (pixel.Compare(col, tol))
+					return {result: true, x: x, y: y}
+			}
+		}
+		return {result: false}
+	}
 	; ===== Available for End-user use, but not advised (Use better alternatives) ===================================================
 	
 	; Gets color of a pixel relative to the screen (As long as it is inside the snapshot)
