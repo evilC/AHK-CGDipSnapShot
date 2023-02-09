@@ -153,8 +153,7 @@ Class CGDipSnapShot {
 			y := A_Index - 1
 			Loop % this._Coords.w {
 				x := A_Index - 1
-				pixel := this.SnapshotGetColor(x, y)
-				if (pixel.Compare(col, tol))
+				if (this.PixelSnap[x,y].Compare(col, tol))
 					return {result: true, x: x, y: y}
 			}
 		}
